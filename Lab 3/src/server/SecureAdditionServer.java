@@ -59,8 +59,9 @@ public class SecureAdditionServer {
 			FileOutputStream fos = null;
 						
 			String option = socketIn.readUTF();
-			String fileName, fileData = "";
-			byte[] data;
+			String fileName = ""; 
+			byte[] fileData = null;
+			//byte[] data;
 			
 		    File resourcesDirectory = new File("src/server/");
 
@@ -68,14 +69,25 @@ public class SecureAdditionServer {
 			if(option.equals("DOWNLOAD_FILE")) {
 				fileName = socketIn.readUTF();
 				
-				file = new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
+				//file = new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
 				
-				fis = new FileInputStream(file);
-				data = new byte[fis.available()];
-				fis.read(data);
-				fileData = new String(data);
+				fis = new FileInputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
+				fileData = new byte[fis.available()];
+				fis.read(fileData);
 				fis.close();
-				socketOut.writeUTF(fileData);
+				
+				/*
+				// Test
+				// image is fully read on server side
+				// image is not complete after being sent to client...
+				fos = new FileOutputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + "new.png"));
+				fos.write(fileData);
+				fos.close();
+				*/
+				
+				socketOut.writeInt(fileData.length);
+				socketOut.write(fileData);
+				
 				
 			}
 			

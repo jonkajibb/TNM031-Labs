@@ -50,8 +50,8 @@ public class SecureAdditionClient {
 			DataOutputStream socketOut = new DataOutputStream(client.getOutputStream());
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			
-			FileInputStream fis = null;
-			FileOutputStream fos = null;
+			FileInputStream in = null;
+			FileOutputStream out = null;
 			
 			File resourcesDirectory = new File("src/client/");
 			
@@ -63,28 +63,42 @@ public class SecureAdditionClient {
 		    	option = Integer.parseInt(input);
 		    	
 				String fileName = "";
-				String fileData = "";
+				byte[] fileData = null;
 		    	switch (option) {
 			    
 			    case 1 :
 			    	System.out.println("Enter file name: ");
 			    	fileName = reader.readLine();
 
+			    	// Sending option and file name to server
 			    	socketOut.writeUTF("DOWNLOAD_FILE");
-
 			    	socketOut.writeUTF(fileName);
 			    	
-			    	fileData = socketIn.readUTF();
+			    	// Receiving file length from server
+			    	int fileLength = socketIn.readInt();
+			    	fileData = new byte[fileLength];
 			    	
-			    	fos = new FileOutputStream(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
-			    	fos.write(fileData.getBytes());
-			    	fos.close();
+			    	// File output stream to correct file path
+			    	out = new FileOutputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
+			    	
+			    	// This loop is needed to write ALL of fileData
+			    	// Rest of the DataInputStream is read here, i.e. the file contents
+			    	int count;
+			    	while ((count = socketIn.read(fileData)) >= 0)
+			    	{
+			    	  out.write(fileData, 0, count);
+			    	}
+			    	out.close(); // closes output stream
 			    	
 			    	System.out.println("File was downloaded to: " + resourcesDirectory.getAbsolutePath() + "\\" + fileName);
 			    	
 			    	break;
 			    case 2 :
-			    	System.out.println("Enter file name...");
+			    	System.out.println("Enter file name: ");
+			    	fileName = reader.readLine();
+
+			    	// Sending option and file name to server
+			    	socketOut.writeUTF("DOWNLOAD_FILE");
 			    	
 			    	break;
 			    case 3 :
