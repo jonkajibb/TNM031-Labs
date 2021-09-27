@@ -46,25 +46,49 @@ public class SecureAdditionClient {
 			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
+			DataInputStream socketIn = new DataInputStream(client.getInputStream());
+			DataOutputStream socketOut = new DataOutputStream(client.getOutputStream());
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			
+			FileInputStream fis = null;
+			FileOutputStream fos = null;
+			
+			File resourcesDirectory = new File("src/client/");
+			
 			System.out.println("Choose an option: \n1. Download file \n2. Upload file \n3. Delete file");
 		    
-			String input = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+			String input = reader.readLine();
 		    int option = 0;
 			try {
 		    	option = Integer.parseInt(input);
 		    	
+				String fileName = "";
+				String fileData = "";
 		    	switch (option) {
 			    
 			    case 1 :
-			    	System.out.println("Downloading...");
+			    	System.out.println("Enter file name: ");
+			    	fileName = reader.readLine();
+
+			    	socketOut.writeUTF("DOWNLOAD_FILE");
+
+			    	socketOut.writeUTF(fileName);
+			    	
+			    	fileData = socketIn.readUTF();
+			    	
+			    	fos = new FileOutputStream(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
+			    	fos.write(fileData.getBytes());
+			    	fos.close();
+			    	
+			    	System.out.println("File was downloaded to: " + resourcesDirectory.getAbsolutePath() + "\\" + fileName);
 			    	
 			    	break;
 			    case 2 :
-			    	System.out.println("Uploading...");
+			    	System.out.println("Enter file name...");
 			    	
 			    	break;
 			    case 3 :
-			    	System.out.println("Deleting...");
+			    	System.out.println("Enter file name:");
 			    	
 			    	break;
 			    	

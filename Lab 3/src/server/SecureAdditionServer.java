@@ -15,6 +15,8 @@ public class SecureAdditionServer {
 	static final String TRUSTSTORE = "src/server/LIUtruststore.ks";
 	static final String KEYSTOREPASS = "123456";
 	static final String TRUSTSTOREPASS = "abcdef";
+	
+	public File file;
 
 	/**
 	 * Constructor
@@ -49,24 +51,34 @@ public class SecureAdditionServer {
 			System.out.println("\n>>>> SecureAdditionServer: active ");
 			SSLSocket incoming = (SSLSocket) sss.accept();
 			
-			// Replace this with file transfer code???
-			BufferedReader in = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
-			PrintWriter out = new PrintWriter(incoming.getOutputStream(), true);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
+			DataInputStream socketIn = new DataInputStream(incoming.getInputStream());
+			DataOutputStream socketOut = new DataOutputStream(incoming.getOutputStream());
+			//PrintWriter out = new PrintWriter(incoming.getOutputStream(), true);
+			FileInputStream fis = null;
+			FileOutputStream fos = null;
+						
+			String option = socketIn.readUTF();
+			String fileName, fileData = "";
+			byte[] data;
+			
+		    File resourcesDirectory = new File("src/server/");
 
-			/*String str;
-			while (!(str = in.readLine()).equals("")) {
-				double result = 0;
-				StringTokenizer st = new StringTokenizer(str);
-				try {
-					while (st.hasMoreTokens()) {
-						Double d = new Double(st.nextToken());
-						result += d.doubleValue();
-					}
-					out.println("The result is " + result);
-				} catch (NumberFormatException nfe) {
-					out.println("Sorry, your list contains an invalid number");
-				}
-			}*/
+			
+			if(option.equals("DOWNLOAD_FILE")) {
+				fileName = socketIn.readUTF();
+				
+				file = new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
+				
+				fis = new FileInputStream(file);
+				data = new byte[fis.available()];
+				fis.read(data);
+				fileData = new String(data);
+				fis.close();
+				socketOut.writeUTF(fileData);
+				
+			}
+			
 			incoming.close();
 		} catch (Exception x) {
 			System.out.println(x);
