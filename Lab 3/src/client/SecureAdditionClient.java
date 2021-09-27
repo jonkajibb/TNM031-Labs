@@ -46,9 +46,38 @@ public class SecureAdditionClient {
 			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
+			System.out.println("Choose an option: \n1. Download file \n2. Upload file \n3. Delete file");
+		    
+			String input = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+		    int option = 0;
+			try {
+		    	option = Integer.parseInt(input);
+		    	
+		    	switch (option) {
+			    
+			    case 1 :
+			    	System.out.println("Downloading...");
+			    	
+			    	break;
+			    case 2 :
+			    	System.out.println("Uploading...");
+			    	
+			    	break;
+			    case 3 :
+			    	System.out.println("Deleting...");
+			    	
+			    	break;
+			    	
+			    default :
+			    	System.out.println("Invalid input. Must be 1, 2 or 3.");
+			    }
+		    } catch (NumberFormatException e){
+		    	System.out.println("Invalid input. Must be 1, 2 or 3.");
+		    }
+			
 			
 			// Replace this with file transfer code???
-			BufferedReader socketIn;
+			/*BufferedReader socketIn;
 			socketIn = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
 			PrintWriter socketOut = new PrintWriter( client.getOutputStream(), true );
 			
@@ -57,7 +86,7 @@ public class SecureAdditionClient {
 			socketOut.println( numbers );
 			System.out.println( socketIn.readLine() );
 
-			socketOut.println ( "" );
+			socketOut.println ( "" );*/
 		}
 		catch( Exception x ) {
 			System.out.println( x );

@@ -53,7 +53,7 @@ public class SecureAdditionServer {
 			BufferedReader in = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
 			PrintWriter out = new PrintWriter(incoming.getOutputStream(), true);
 
-			String str;
+			/*String str;
 			while (!(str = in.readLine()).equals("")) {
 				double result = 0;
 				StringTokenizer st = new StringTokenizer(str);
@@ -66,7 +66,7 @@ public class SecureAdditionServer {
 				} catch (NumberFormatException nfe) {
 					out.println("Sorry, your list contains an invalid number");
 				}
-			}
+			}*/
 			incoming.close();
 		} catch (Exception x) {
 			System.out.println(x);
