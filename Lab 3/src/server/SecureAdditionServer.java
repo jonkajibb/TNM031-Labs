@@ -30,6 +30,8 @@ public class SecureAdditionServer {
 	/** The method that does the work for the class */
 	public void run() {
 		try {
+			
+			// Here the keystore and truststore are created
 			KeyStore ks = KeyStore.getInstance("JCEKS");
 			ks.load(new FileInputStream(KEYSTORE), KEYSTOREPASS.toCharArray());
 
