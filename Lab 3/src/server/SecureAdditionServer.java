@@ -51,7 +51,7 @@ public class SecureAdditionServer {
 			System.out.println("\n>>>> SecureAdditionServer: active ");
 			SSLSocket incoming = (SSLSocket) sss.accept();
 			
-			BufferedReader reader = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
+			//BufferedReader reader = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
 			DataInputStream socketIn = new DataInputStream(incoming.getInputStream());
 			DataOutputStream socketOut = new DataOutputStream(incoming.getOutputStream());
 			//PrintWriter out = new PrintWriter(incoming.getOutputStream(), true);
@@ -59,6 +59,7 @@ public class SecureAdditionServer {
 			FileOutputStream fos = null;
 						
 			String option = socketIn.readUTF();
+			System.out.println("Option: " + option);
 			String fileName = ""; 
 			byte[] fileData = null;
 			//byte[] data;
@@ -66,11 +67,9 @@ public class SecureAdditionServer {
 		    File resourcesDirectory = new File("src/server/");
 
 			
-			if(option.equals("DOWNLOAD_FILE")) {
+			if(option.equals("DOWNLOAD")) {
 				fileName = socketIn.readUTF();
-				
-				//file = new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
-				
+								
 				fis = new FileInputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
 				fileData = new byte[fis.available()];
 				fis.read(fileData);
@@ -89,6 +88,29 @@ public class SecureAdditionServer {
 				socketOut.write(fileData);
 				
 				
+			} else if (option.equals("UPLOAD")){
+				fileName = socketIn.readUTF();
+		    	//System.out.println(socketIn.available());
+
+				// Receiving file length from client
+		    	int fileLength = socketIn.readInt();
+		    	fileData = new byte[fileLength];
+
+		    	// File output stream to correct file path
+		    	fos = new FileOutputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
+		    	//String data = socketIn.readUTF();
+		    	socketIn.read(fileData);
+		    	//fileData = data.getBytes();
+		    	fos.write(fileData);
+		    	// This loop is needed to write ALL of fileData
+		    	// Rest of the DataInputStream is read here, i.e. the file contents
+		    	/*int count;
+		    	//System.out.println(socketIn.available());
+		    	while ((count = socketIn.read(fileData)) >= 0)
+		    	{
+		    		fos.write(fileData, 0, count);
+		    	}*/
+		    	fos.close(); // closes output stream
 			}
 			
 			incoming.close();

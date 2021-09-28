@@ -50,8 +50,8 @@ public class SecureAdditionClient {
 			DataOutputStream socketOut = new DataOutputStream(client.getOutputStream());
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			
-			FileInputStream in = null;
-			FileOutputStream out = null;
+			FileInputStream fis = null;
+			FileOutputStream fos = null;
 			
 			File resourcesDirectory = new File("src/client/");
 			
@@ -71,7 +71,7 @@ public class SecureAdditionClient {
 			    	fileName = reader.readLine();
 
 			    	// Sending option and file name to server
-			    	socketOut.writeUTF("DOWNLOAD_FILE");
+			    	socketOut.writeUTF("DOWNLOAD");
 			    	socketOut.writeUTF(fileName);
 			    	
 			    	// Receiving file length from server
@@ -79,16 +79,16 @@ public class SecureAdditionClient {
 			    	fileData = new byte[fileLength];
 			    	
 			    	// File output stream to correct file path
-			    	out = new FileOutputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
+			    	fos = new FileOutputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
 			    	
 			    	// This loop is needed to write ALL of fileData
 			    	// Rest of the DataInputStream is read here, i.e. the file contents
 			    	int count;
 			    	while ((count = socketIn.read(fileData)) >= 0)
 			    	{
-			    	  out.write(fileData, 0, count);
+			    		fos.write(fileData, 0, count);
 			    	}
-			    	out.close(); // closes output stream
+			    	fos.close(); // closes output stream
 			    	
 			    	System.out.println("File was downloaded to: " + resourcesDirectory.getAbsolutePath() + "\\" + fileName);
 			    	
@@ -96,10 +96,22 @@ public class SecureAdditionClient {
 			    case 2 :
 			    	System.out.println("Enter file name: ");
 			    	fileName = reader.readLine();
-
-			    	// Sending option and file name to server
-			    	socketOut.writeUTF("DOWNLOAD_FILE");
 			    	
+			    	fis = new FileInputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
+					fileData = new byte[fis.available()];
+			    	//System.out.println(fis.available());
+
+					fis.read(fileData);
+					
+			    	// Sending option and file name to server
+			    	socketOut.writeUTF("UPLOAD");
+			    	socketOut.writeUTF(fileName);
+			    	socketOut.writeInt(fileData.length);
+			    	//System.out.println(fis.available());
+			    	String data = fileData.toString();
+			    	socketOut.write(fileData);
+					fis.close();
+
 			    	break;
 			    case 3 :
 			    	System.out.println("Enter file name:");
