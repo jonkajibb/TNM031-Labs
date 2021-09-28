@@ -27,6 +27,7 @@ public class SecureAdditionClient {
   // The method used to start a client object
 	public void run() {
 		try {
+			// Here the keystore and truststore are created
 			KeyStore ks = KeyStore.getInstance( "JCEKS" );
 			ks.load( new FileInputStream( KEYSTORE ), KEYSTOREPASS.toCharArray() );
 			
@@ -39,11 +40,16 @@ public class SecureAdditionClient {
 			TrustManagerFactory tmf = TrustManagerFactory.getInstance( "SunX509" );
 			tmf.init( ts );
 			
+			// TLS, for extra security
 			SSLContext sslContext = SSLContext.getInstance( "TLS" );
+			// SSL handshake
+			// null as random number parameter -> default seed is used
 			sslContext.init( kmf.getKeyManagers(), tmf.getTrustManagers(), null );
 			SSLSocketFactory sslFact = sslContext.getSocketFactory();      	
 			SSLSocket client =  (SSLSocket)sslFact.createSocket(host, port);
+			// All cipher suits are enabled for flexibility
 			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
+			System.out.println(client.getEnabledCipherSuites());
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
 			DataInputStream socketIn = new DataInputStream(client.getInputStream());
@@ -71,7 +77,8 @@ public class SecureAdditionClient {
 			    	fileName = reader.readLine();
 
 			    	// Sending option and file name to server
-			    	socketOut.writeUTF("DOWNLOAD");
+			    	//socketOut.writeUTF("DOWNLOAD");
+			    	socketOut.writeInt(option);
 			    	socketOut.writeUTF(fileName);
 			    	
 			    	// Receiving file length from server
@@ -99,16 +106,15 @@ public class SecureAdditionClient {
 			    	
 			    	fis = new FileInputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
 					fileData = new byte[fis.available()];
-			    	//System.out.println(fis.available());
 
 					fis.read(fileData);
 					
 			    	// Sending option and file name to server
-			    	socketOut.writeUTF("UPLOAD");
+			    	//socketOut.writeUTF("UPLOAD");
+			    	socketOut.writeInt(option);
 			    	socketOut.writeUTF(fileName);
 			    	socketOut.writeInt(fileData.length);
-			    	//System.out.println(fis.available());
-			    	String data = fileData.toString();
+
 			    	socketOut.write(fileData);
 					fis.close();
 
@@ -118,7 +124,8 @@ public class SecureAdditionClient {
 			    	fileName = reader.readLine();
 
 			    	// Sending option and file name to server
-			    	socketOut.writeUTF("DELETE");
+			    	//socketOut.writeUTF("DELETE");
+			    	socketOut.writeInt(option);
 			    	socketOut.writeUTF(fileName);
 			    	
 			    	

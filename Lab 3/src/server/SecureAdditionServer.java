@@ -44,23 +44,28 @@ public class SecureAdditionServer {
 			TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
 			tmf.init(ts);
 
+			// TLS, for extra security
 			SSLContext sslContext = SSLContext.getInstance("TLS");
+			// SSL handshake
+			// null as random number parameter -> default seed is used
 			sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 			SSLServerSocketFactory sslServerFactory = sslContext.getServerSocketFactory();
 			SSLServerSocket sss = (SSLServerSocket) sslServerFactory.createServerSocket(port);
+			// All cipher suits are enabled for flexibility
 			sss.setEnabledCipherSuites(sss.getSupportedCipherSuites());
+			//System.out.println(sss.getEnabledCipherSuites()[3]);
 
 			System.out.println("\n>>>> SecureAdditionServer: active ");
 			SSLSocket incoming = (SSLSocket) sss.accept();
 			
-			//BufferedReader reader = new BufferedReader(new InputStreamReader(incoming.getInputStream()));
+			
 			DataInputStream socketIn = new DataInputStream(incoming.getInputStream());
 			DataOutputStream socketOut = new DataOutputStream(incoming.getOutputStream());
-			//PrintWriter out = new PrintWriter(incoming.getOutputStream(), true);
 			FileInputStream fis = null;
 			FileOutputStream fos = null;
 						
-			String option = socketIn.readUTF();
+			//String option = socketIn.readUTF();
+			int option = socketIn.readInt();
 			System.out.println("Option: " + option);
 			String fileName = ""; 
 			byte[] fileData = null;
@@ -68,9 +73,10 @@ public class SecureAdditionServer {
 			
 		    File resourcesDirectory = new File("src/server/");
 
-			if(option.equals("DOWNLOAD")) {
-				fileName = socketIn.readUTF();
-								
+		    switch (option) {
+		    case 1 :
+		    	fileName = socketIn.readUTF();
+				
 				fis = new FileInputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
 				fileData = new byte[fis.available()];
 				fis.read(fileData);
@@ -78,12 +84,9 @@ public class SecureAdditionServer {
 				
 				socketOut.writeInt(fileData.length);
 				socketOut.write(fileData);
-				
-				
-			} 
-			else if (option.equals("UPLOAD"))
-			{
-				fileName = socketIn.readUTF();
+		    	break;
+		    case 2 :
+		    	fileName = socketIn.readUTF();
 
 				// Receiving file length from client
 		    	int fileLength = socketIn.readInt();
@@ -94,18 +97,21 @@ public class SecureAdditionServer {
 		    	socketIn.read(fileData);
 		    	fos.write(fileData);
 		    	fos.close(); // closes output stream
-			}
-			else if (option.equals("DELETE"))
-			{
-				fileName = socketIn.readUTF();
+		    	break;
+		    case 3 :
+		    	fileName = socketIn.readUTF();
 				
 				File f = new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
 				
 				f.delete();
 				
 				System.out.println(fileName + " was deleted.");
-			}
-			
+		    	break;
+		    	
+		    default :
+		    	System.out.println("Invalid input. Must be 1, 2 or 3.");
+		    }
+		    
 			incoming.close();
 		} catch (Exception x) {
 			System.out.println(x);
