@@ -115,6 +115,12 @@ public class SecureAdditionClient {
 			    	break;
 			    case 3 :
 			    	System.out.println("Enter file name:");
+			    	fileName = reader.readLine();
+
+			    	// Sending option and file name to server
+			    	socketOut.writeUTF("DELETE");
+			    	socketOut.writeUTF(fileName);
+			    	
 			    	
 			    	break;
 			    	

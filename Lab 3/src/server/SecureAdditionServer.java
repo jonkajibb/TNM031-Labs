@@ -66,7 +66,6 @@ public class SecureAdditionServer {
 			
 		    File resourcesDirectory = new File("src/server/");
 
-			
 			if(option.equals("DOWNLOAD")) {
 				fileName = socketIn.readUTF();
 								
@@ -75,22 +74,14 @@ public class SecureAdditionServer {
 				fis.read(fileData);
 				fis.close();
 				
-				/*
-				// Test
-				// image is fully read on server side
-				// image is not complete after being sent to client...
-				fos = new FileOutputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + "new.png"));
-				fos.write(fileData);
-				fos.close();
-				*/
-				
 				socketOut.writeInt(fileData.length);
 				socketOut.write(fileData);
 				
 				
-			} else if (option.equals("UPLOAD")){
+			} 
+			else if (option.equals("UPLOAD"))
+			{
 				fileName = socketIn.readUTF();
-		    	//System.out.println(socketIn.available());
 
 				// Receiving file length from client
 		    	int fileLength = socketIn.readInt();
@@ -98,19 +89,19 @@ public class SecureAdditionServer {
 
 		    	// File output stream to correct file path
 		    	fos = new FileOutputStream(new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName));
-		    	//String data = socketIn.readUTF();
 		    	socketIn.read(fileData);
-		    	//fileData = data.getBytes();
 		    	fos.write(fileData);
-		    	// This loop is needed to write ALL of fileData
-		    	// Rest of the DataInputStream is read here, i.e. the file contents
-		    	/*int count;
-		    	//System.out.println(socketIn.available());
-		    	while ((count = socketIn.read(fileData)) >= 0)
-		    	{
-		    		fos.write(fileData, 0, count);
-		    	}*/
 		    	fos.close(); // closes output stream
+			}
+			else if (option.equals("DELETE"))
+			{
+				fileName = socketIn.readUTF();
+				
+				File f = new File(resourcesDirectory.getAbsolutePath() + "\\" + fileName);
+				
+				f.delete();
+				
+				System.out.println(fileName + " was deleted.");
 			}
 			
 			incoming.close();
