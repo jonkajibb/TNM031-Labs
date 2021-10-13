@@ -49,7 +49,6 @@ public class SecureAdditionClient {
 			SSLSocket client =  (SSLSocket)sslFact.createSocket(host, port);
 			// All cipher suits are enabled for flexibility
 			client.setEnabledCipherSuites( client.getSupportedCipherSuites() );
-			System.out.println(client.getEnabledCipherSuites());
 			System.out.println("\n>>>> SSL/TLS handshake completed");
 
 			DataInputStream socketIn = new DataInputStream(client.getInputStream());
@@ -77,7 +76,6 @@ public class SecureAdditionClient {
 			    	fileName = reader.readLine();
 
 			    	// Sending option and file name to server
-			    	//socketOut.writeUTF("DOWNLOAD");
 			    	socketOut.writeInt(option);
 			    	socketOut.writeUTF(fileName);
 			    	
@@ -110,7 +108,6 @@ public class SecureAdditionClient {
 					fis.read(fileData);
 					
 			    	// Sending option and file name to server
-			    	//socketOut.writeUTF("UPLOAD");
 			    	socketOut.writeInt(option);
 			    	socketOut.writeUTF(fileName);
 			    	socketOut.writeInt(fileData.length);
@@ -124,10 +121,8 @@ public class SecureAdditionClient {
 			    	fileName = reader.readLine();
 
 			    	// Sending option and file name to server
-			    	//socketOut.writeUTF("DELETE");
 			    	socketOut.writeInt(option);
 			    	socketOut.writeUTF(fileName);
-			    	
 			    	
 			    	break;
 			    	
@@ -137,19 +132,6 @@ public class SecureAdditionClient {
 		    } catch (NumberFormatException e){
 		    	System.out.println("Invalid input. Must be 1, 2 or 3.");
 		    }
-			
-			
-			// Replace this with file transfer code???
-			/*BufferedReader socketIn;
-			socketIn = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
-			PrintWriter socketOut = new PrintWriter( client.getOutputStream(), true );
-			
-			String numbers = "1.2 3.4 5.6";
-			System.out.println( ">>>> Sending the numbers " + numbers+ " to SecureAdditionServer" );
-			socketOut.println( numbers );
-			System.out.println( socketIn.readLine() );
-
-			socketOut.println ( "" );*/
 		}
 		catch( Exception x ) {
 			System.out.println( x );

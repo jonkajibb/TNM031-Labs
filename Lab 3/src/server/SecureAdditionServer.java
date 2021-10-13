@@ -63,13 +63,11 @@ public class SecureAdditionServer {
 			DataOutputStream socketOut = new DataOutputStream(incoming.getOutputStream());
 			FileInputStream fis = null;
 			FileOutputStream fos = null;
-						
-			//String option = socketIn.readUTF();
+			
 			int option = socketIn.readInt();
 			System.out.println("Option: " + option);
 			String fileName = ""; 
 			byte[] fileData = null;
-			//byte[] data;
 			
 		    File resourcesDirectory = new File("src/server/");
 
