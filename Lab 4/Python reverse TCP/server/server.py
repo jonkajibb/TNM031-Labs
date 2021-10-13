@@ -1,4 +1,5 @@
 import socket
+import struct
 
 SERVER_HOST = "10.0.1.24" # desktop
 SERVER_PORT = 4444
@@ -36,12 +37,31 @@ while True:
         break
     elif splitted_command[0].lower() == "read" :
         file_name = splitted_command[1]
-        
+
+        # Making sure file exists and receiving file size
+        #file_size = struct.unpack("i", s.recv(4))[0]
+        file_size = int(client_socket.recv(BUFFER_SIZE).decode())
+
+        output_file = open(file_name, "wb")
+        bytes_recieved = 0
+
+        print("Downloading...")
+        while bytes_recieved < file_size :
+            l = client_socket.recv(BUFFER_SIZE)
+            output_file.write(l)
+            bytes_recieved += BUFFER_SIZE
+        output_file.close()
+        print("Download successful!")
+
+        client_socket.send("1".encode())
+
+        """
         file_size = int(client_socket.recv(BUFFER_SIZE).decode())
         print(file_size)
         data = client_socket.recv(file_size)
         with open(file_name, "wb") as f:
             f.write(data)
+        """
         """
         with open(file_name, "wb") as f:
             while True:
