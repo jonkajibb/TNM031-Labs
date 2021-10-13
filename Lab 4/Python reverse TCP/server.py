@@ -30,8 +30,10 @@ while True:
     splitted_command = command.split()
     if not command.strip():
         continue
-    elif splitted_command.lower()[0] == "read" :
+    elif splitted_command[0].lower() == "read" :
+        print("Reading...")
         respond = client_socket.recv(BUFFER_SIZE).decode()
+        print("Response recieved...")
         if respond != "error" :
             file_name = splitted_command[1]
             file_data = b""
