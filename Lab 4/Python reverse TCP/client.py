@@ -6,7 +6,7 @@ import sys
 from server import BUFFER_SIZE, SEPARATOR, SERVER_HOST, SERVER_PORT
 
 # SERVER_HOST = sys.argv[1]
-SERVER_HOST = "127.0.0.1"
+SERVER_HOST = "10.0.1.24" # desktop
 SERVER_PORT = 4444
 BUFFER_SIZE = 1024 * 128
 SEPARATOR = "<sep>"
